@@ -11,7 +11,7 @@ const Categories = ({ onCategorySelect }) => {
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full text-center">
-        <h2 className="text-3xl font-bold mb-8">Catégories de Plats</h2>
+        <h2 className="text-3xl font-bold mb-8">NOS MENUS</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
           {categories.map((category) => (
             <button

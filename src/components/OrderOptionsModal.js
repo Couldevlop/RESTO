@@ -1,13 +1,29 @@
 import React, { useState } from "react";
 
-const OrderOptionsModal = ({ onClose, onConfirm }) => {
+const OrderOptionsModal = ({ onClose, onConfirm,selectedDish  }) => {
   const [option, setOption] = useState("");
   const [onSiteCount, setOnSiteCount] = useState(0);
   const [toGoCount, setToGoCount] = useState(0);
 
+  const handleConfirm = () => {
+    onConfirm({ option, onSiteCount, toGoCount });
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg max-w-sm w-full">
+
+      {selectedDish && (
+          <div className="mb-4">
+            <img
+              src={selectedDish.image}
+              alt={selectedDish.name}
+              className="w-full h-40 object-cover rounded"
+            />
+          </div>
+        )}
+
         <h2 className="text-xl font-semibold mb-4">Options de consommation</h2>
 
         <label className="flex items-center space-x-2">
@@ -46,21 +62,21 @@ const OrderOptionsModal = ({ onClose, onConfirm }) => {
               type="number"
               placeholder="Sur place (quantité)"
               value={onSiteCount}
-              onChange={(e) => setOnSiteCount(e.target.value)}
+              onChange={(e) => setOnSiteCount(Number(e.target.value))}
               className="w-full p-2 border rounded"
             />
             <input
               type="number"
               placeholder="Emporter (quantité)"
               value={toGoCount}
-              onChange={(e) => setToGoCount(e.target.value)}
+              onChange={(e) => setToGoCount(Number(e.target.value))}
               className="w-full p-2 border rounded"
             />
           </div>
         )}
 
         <button
-          onClick={() => onConfirm({ option, onSiteCount, toGoCount })}
+          onClick={handleConfirm}
           className="mt-4 w-full p-2 bg-amber-800 text-white rounded hover:bg-amber-900"
         >
           OK
