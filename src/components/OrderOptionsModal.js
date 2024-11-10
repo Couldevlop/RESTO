@@ -1,11 +1,35 @@
 import React, { useState } from "react";
+import { useOrders } from "../contexts/OrderContext";
 
-const OrderOptionsModal = ({ onClose, onConfirm,selectedDish  }) => {
+const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
   const [option, setOption] = useState("");
   const [onSiteCount, setOnSiteCount] = useState(0);
   const [toGoCount, setToGoCount] = useState(0);
+  const { addOrder } = useOrders();
 
   const handleConfirm = () => {
+    const quantity =
+      option === "Surplace/Emporter" ? onSiteCount + toGoCount : 1;
+
+    // Créer un nouvel ordre
+    const newOrder = {
+      tableNumber: userInfo.tableNumber,
+      items: [
+        {
+          id: selectedDish.id,
+          name: selectedDish.name,
+          image: selectedDish.image,
+          orderType: option,
+          price: selectedDish.price,
+          quantity: quantity,
+        },
+      ],
+    };
+
+    // Ajouter la commande au contexte
+    addOrder(newOrder);
+
+    // Appeler les callbacks
     onConfirm({ option, onSiteCount, toGoCount });
     onClose();
   };
@@ -13,8 +37,7 @@ const OrderOptionsModal = ({ onClose, onConfirm,selectedDish  }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg max-w-sm w-full">
-
-      {selectedDish && (
+        {selectedDish && (
           <div className="mb-4">
             <img
               src={selectedDish.image}
@@ -23,9 +46,7 @@ const OrderOptionsModal = ({ onClose, onConfirm,selectedDish  }) => {
             />
           </div>
         )}
-
         <h2 className="text-xl font-semibold mb-4">Options de consommation</h2>
-
         <label className="flex items-center space-x-2">
           <input
             type="radio"
@@ -35,7 +56,6 @@ const OrderOptionsModal = ({ onClose, onConfirm,selectedDish  }) => {
           />
           <span>Emporter</span>
         </label>
-
         <label className="flex items-center space-x-2">
           <input
             type="radio"
@@ -45,7 +65,6 @@ const OrderOptionsModal = ({ onClose, onConfirm,selectedDish  }) => {
           />
           <span>Sur place</span>
         </label>
-
         <label className="flex items-center space-x-2">
           <input
             type="radio"
@@ -55,7 +74,6 @@ const OrderOptionsModal = ({ onClose, onConfirm,selectedDish  }) => {
           />
           <span>Sur place/Emporter</span>
         </label>
-
         {option === "Surplace/Emporter" && (
           <div className="mt-4 space-y-2">
             <input
@@ -74,7 +92,6 @@ const OrderOptionsModal = ({ onClose, onConfirm,selectedDish  }) => {
             />
           </div>
         )}
-
         <button
           onClick={handleConfirm}
           className="mt-4 w-full p-2 bg-amber-800 text-white rounded hover:bg-amber-900"

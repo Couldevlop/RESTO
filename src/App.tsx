@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { OrderProvider } from "./contexts/OrderContext";
 import WelcomeScreen from "./components/WelcomeScreen";
 import RegistrationChoice from "./components/RegistrationChoice";
 import RegistrationForm from "./components/RegistrationForm";
@@ -8,7 +9,7 @@ import OrderOptionsModal from "./components/OrderOptionsModal";
 import AdminLogin from "./components/AdminLogin";
 import AdminDashboard from "./components/AdminDashboard";
 
-// Types
+// Define types
 type Step =
   | "welcome"
   | "choice"
@@ -19,23 +20,12 @@ type Step =
   | "dishes"
   | "orderOptions";
 
-interface Category {
-  id: number;
-  name: string;
-}
+type RegistrationType = "client" | "personnel";
+type Category = { id: number; name: string }; // Define this based on your category structure
+type Dish = { id: number; name: string; price: number }; // Define this based on your dish structure
+type UserInfo = { name: string; email: string }; // Define based on user data structure
+type OrderDetails = { dishId: number; quantity: number }; // Define as per your order structure
 
-interface Dish {
-  id: number;
-  name: string;
-  price: number;
-}
-
-interface Order {
-  dishId: number;
-  quantity: number;
-}
-
-// Main App Component
 const App = () => {
   const [step, setStep] = useState<Step>("welcome");
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -43,11 +33,20 @@ const App = () => {
   );
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [commandCount, setCommandCount] = useState(0);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
-  const handleRegistrationType = (type: "client" | "personnel") => {
+  // Handle registration type
+  const handleRegistrationType = (type: RegistrationType) => {
     setStep(type === "client" ? "registration" : "adminLogin");
   };
 
+  // Handle registration info
+  const handleRegistration = (info: UserInfo) => {
+    setUserInfo(info);
+    setStep("categories");
+  };
+
+  // Render the current step
   const renderStep = () => {
     switch (step) {
       case "welcome":
@@ -55,11 +54,7 @@ const App = () => {
       case "choice":
         return <RegistrationChoice onSelectType={handleRegistrationType} />;
       case "registration":
-        return (
-          <RegistrationForm
-            onNavigateToCategories={() => setStep("categories")}
-          />
-        );
+        return <RegistrationForm onNavigateToCategories={handleRegistration} />;
       case "adminLogin":
         return <AdminLogin onLogin={() => setStep("adminDashboard")} />;
       case "adminDashboard":
@@ -89,8 +84,9 @@ const App = () => {
         return (
           <OrderOptionsModal
             selectedDish={selectedDish}
+            userInfo={userInfo}
             onClose={() => setStep("dishes")}
-            onConfirm={(order: Order) => {
+            onConfirm={(orderDetails: OrderDetails) => {
               setCommandCount(commandCount + 1);
               setSelectedDish(null);
               setStep("dishes");
@@ -102,7 +98,11 @@ const App = () => {
     }
   };
 
-  return <div>{renderStep()}</div>;
+  return (
+    <OrderProvider>
+      <div>{renderStep()}</div>
+    </OrderProvider>
+  );
 };
 
 export default App;

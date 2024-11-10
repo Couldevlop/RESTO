@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 
 const RegistrationForm = ({ onNavigateToCategories }) => {
+  const [userInfo, setUserInfo] = useState({
+    phone: "",
+    email: "",
+    tableNumber: "",
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onNavigateToCategories();
+    onNavigateToCategories(userInfo);
   };
 
   return (
@@ -15,18 +21,26 @@ const RegistrationForm = ({ onNavigateToCategories }) => {
         <input
           type="tel"
           placeholder="Téléphone"
+          value={userInfo.phone}
+          onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
           className="w-full p-3 rounded border"
           required
         />
         <input
           type="email"
           placeholder="Email"
+          value={userInfo.email}
+          onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
           className="w-full p-3 rounded border"
           required
         />
         <input
           type="number"
           placeholder="N° table"
+          value={userInfo.tableNumber}
+          onChange={(e) =>
+            setUserInfo({ ...userInfo, tableNumber: e.target.value })
+          }
           className="w-full p-3 rounded border"
           required
         />
