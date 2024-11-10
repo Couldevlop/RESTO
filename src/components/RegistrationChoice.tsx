@@ -10,7 +10,11 @@ const RegistrationChoice = ({ onSelectType }: RegistrationChoiceProps) => {
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-6">
       <div className="w-full max-w-4xl mx-auto">
         <div className="h-20 w-20 bg-amber-800 rounded-full flex items-center justify-center mx-auto mb-8">
-          <span className="text-2xl font-bold text-white">DC</span>
+          <span className="text-2xl font-bold text-white">
+            <div className="flex items-center">
+              <img src="/images/dc.jpg" alt="Panier" />
+            </div>
+          </span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
           <button
