@@ -1,12 +1,31 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const Categories = ({ onCategorySelect }) => {
-  const categories = [
-    { id: 1, name: "ENTREE", color: "bg-green-600" },
-    { id: 2, name: "RESISTANCE", color: "bg-blue-600" },
-    { id: 3, name: "DESSERT", color: "bg-pink-600" },
-    { id: 4, name: "BOISSON", color: "bg-purple-600" },
-  ];
+  const [categories, setCategories] = useState([]);
+
+  const categoryColors = {
+    "ENTREE": "bg-green-600",
+    "RESISTANCE": "bg-blue-600",
+    "DESSERT": "bg-pink-600",
+    "BOISSONS": "bg-purple-600"
+  };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/resto/api/categories");
+        if (!response.ok) {
+          throw new Error("Une erreur s'est produite lors de la récupération des catégories");
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des catégories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4">
@@ -16,8 +35,8 @@ const Categories = ({ onCategorySelect }) => {
           {categories.map((category) => (
             <button
               key={category.id}
-              onClick={() => onCategorySelect(category.name)}
-              className={`${category.color} text-white p-6 rounded-lg text-xl font-bold flex items-center justify-center h-32`}
+              onClick={() => onCategorySelect(category)} // Pass the whole category object
+              className={`${categoryColors[category.name] || 'bg-gray-600'} text-white p-6 rounded-lg text-xl font-bold flex items-center justify-center h-32`}
             >
               {category.name}
             </button>

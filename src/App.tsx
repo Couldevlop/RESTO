@@ -21,16 +21,14 @@ type Step =
   | "orderOptions";
 
 type RegistrationType = "client" | "personnel";
-type Category = { id: number; name: string }; // Define this based on your category structure
-type Dish = { id: number; name: string; price: number }; // Define this based on your dish structure
-type UserInfo = { name: string; email: string }; // Define based on user data structure
-type OrderDetails = { dishId: number; quantity: number }; // Define as per your order structure
+type Category = { id: number; name: string };
+type Dish = { id: number; name: string; price: number };
+type UserInfo = { name: string; email: string };
+type OrderDetails = { dishId: number; quantity: number };
 
 const App = () => {
   const [step, setStep] = useState<Step>("welcome");
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [commandCount, setCommandCount] = useState(0);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -65,13 +63,13 @@ const App = () => {
             onCategorySelect={(category: Category) => {
               setSelectedCategory(category);
               setStep("dishes");
-            }}
+            }} // Pass the whole category object here
           />
         );
       case "dishes":
         return (
           <DishList
-            category={selectedCategory}
+            categoryId={selectedCategory ? selectedCategory.id : null} // Adjust this part to pass the ID
             onDishSelect={(dish: Dish) => {
               setSelectedDish(dish);
               setStep("orderOptions");
