@@ -6,32 +6,68 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
   const [onSiteCount, setOnSiteCount] = useState(0);
   const [toGoCount, setToGoCount] = useState(0);
   const { addOrder } = useOrders();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleConfirm = () => {
-    const quantity =
-      option === "Surplace/Emporter" ? onSiteCount + toGoCount : 1;
+  const handleConfirm = async () => {
+    const quantity = option === "Surplace/Emporter" ? onSiteCount + toGoCount : 1;
 
-    // Créer un nouvel ordre
-    const newOrder = {
-      tableNumber: userInfo.tableNumber,
-      items: [
-        {
-          id: selectedDish.id,
-          name: selectedDish.name,
-          image: selectedDish.image,
-          orderType: option,
-          price: selectedDish.price,
-          quantity: quantity,
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Étape 1 : Enregistrer l'item
+      const itemResponse = await fetch("http://localhost:4000/resto/api/orderitems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      ],
-    };
+        body: JSON.stringify({
+          dishId: selectedDish.id,
+          quantity: quantity,
+        }),
+      });
 
-    // Ajouter la commande au contexte
-    addOrder(newOrder);
+      if (!itemResponse.ok) {
+        throw new Error("Erreur lors de l'enregistrement de l'item.");
+      }
 
-    // Appeler les callbacks
-    onConfirm({ option, onSiteCount, toGoCount });
-    onClose();
+      const itemData = await itemResponse.json();
+
+      // Étape 2 : Enregistrer la commande
+      const orderResponse = await fetch("http://localhost:4000/resto/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userInfo.id, // Assurez-vous que userInfo a un id d'utilisateur
+          items: [
+            {
+              orderItemId: itemData.id, // L'ID de l'item enregistré
+              quantity: quantity,
+            },
+          ],
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        throw new Error("Erreur lors de l'enregistrement de la commande.");
+      }
+
+      const orderData = await orderResponse.json();
+
+      // Ajouter la commande au contexte
+      addOrder(orderData);
+
+      // Appeler les callbacks
+      onConfirm({ option, onSiteCount, toGoCount });
+      onClose();
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,6 +83,8 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
           </div>
         )}
         <h2 className="text-xl font-semibold mb-4">Options de consommation</h2>
+
+        {/* Input pour le choix de l'option */}
         <label className="flex items-center space-x-2">
           <input
             type="radio"
@@ -74,6 +112,7 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
           />
           <span>Sur place/Emporter</span>
         </label>
+
         {option === "Surplace/Emporter" && (
           <div className="mt-4 space-y-2">
             <input
@@ -92,8 +131,13 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
             />
           </div>
         )}
+
+        {loading && <p>Traitement de votre commande...</p>}
+        {error && <p className="text-red-600">{error}</p>}
+
         <button
           onClick={handleConfirm}
+          disabled={loading}
           className="mt-4 w-full p-2 bg-amber-800 text-white rounded hover:bg-amber-900"
         >
           OK
