@@ -7,7 +7,7 @@ interface OrderItem {
   name: string;
   image: string;
   orderType: string;
-  price: number;
+  price: number; // Le prix de l'article
   quantity: number;
 }
 
@@ -34,6 +34,7 @@ const AdminDashboard = () => {
         if (!response.ok) throw new Error("Erreur au chargement des commandes");
         const data: Order[] = await response.json();
         setOrders(data);
+        calculateInitialTotal(data); // Calcule le total initial à partir des commandes chargées
       } catch (error) {
         console.error(error);
       }
@@ -42,21 +43,16 @@ const AdminDashboard = () => {
     fetchOrders();
   }, []);
 
-  // Chargement du total des commandes servies
-  useEffect(() => {
-    const fetchTotalServed = async () => {
-      try {
-        const response = await fetch("http://localhost:4000/resto/api/orders/total-sum");
-        if (!response.ok) throw new Error("Erreur au chargement du total des commandes servies");
-        const total: number = await response.json();
-        setTotalServed(total);
-      } catch (error) {
-        console.error(error);
+  // Calculer le total des commandes servies initialement
+  const calculateInitialTotal = (orders: Order[]) => {
+    const total = orders.reduce((acc, order) => {
+      if (order.status === "Servi") {
+        return acc + order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       }
-    };
-
-    fetchTotalServed();
-  }, []);
+      return acc;
+    }, 0);
+    setTotalServed(total);
+  };
 
   // Gestionnaire de mise à jour du statut
   const handleUpdateStatus = async (orderId: number, newStatus: Order["status"]) => {
@@ -70,17 +66,27 @@ const AdminDashboard = () => {
 
       // Mettez à jour les commandes localement
       setOrders((prevOrders) =>
-        prevOrders.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order))
-      );
+        prevOrders.map((order) => {
+          if (order.id === orderId) {
+            const updatedOrder = { ...order, status: newStatus };
 
-      // Si le statut devient "Servi", mettez à jour le total
-      if (newStatus === "Servi") {
-        const updatedOrder = orders.find(order => order.id === orderId);
-        if (updatedOrder) {
-          const total = updatedOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-          setTotalServed(prevTotal => prevTotal + total);
-        }
-      }
+            // Si le statut devient "Servi", mettez à jour le total
+            if (newStatus === "Servi") {
+              const orderTotal = updatedOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+              setTotalServed((prevTotal) => prevTotal + orderTotal); // Ajouter le total de cette commande
+            } else {
+              // Si le statut n'est plus "Servi", il faut le soustraire du total
+              if (order.status === "Servi") {
+                const orderTotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                setTotalServed((prevTotal) => prevTotal - orderTotal);
+              }
+            }
+
+            return updatedOrder;
+          }
+          return order;
+        })
+      );
 
       // Fermer le modal après mise à jour
       setSelectedOrder(null);
