@@ -20,11 +20,14 @@ type Step =
   | "dishes"
   | "orderOptions";
 
+  
+
 type RegistrationType = "client" | "personnel";
 type Category = { id: number; name: string };
-type Dish = { id: number; name: string; price: number };
-type UserInfo = { name: string; email: string };
+type Dish = { id: number; name: string; description: string; ingredients: string; image: string; price: number };
+type UserInfo = { name: string; email: string; tableNumber : number };
 type OrderDetails = { dishId: number; quantity: number };
+
 
 const App = () => {
   const [step, setStep] = useState<Step>("welcome");
@@ -32,6 +35,7 @@ const App = () => {
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [commandCount, setCommandCount] = useState(0);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  
 
   // Handle registration type
   const handleRegistrationType = (type: RegistrationType) => {
@@ -63,7 +67,7 @@ const App = () => {
             onCategorySelect={(category: Category) => {
               setSelectedCategory(category);
               setStep("dishes");
-            }} // Pass the whole category object here
+            }} 
           />
         );
       case "dishes":

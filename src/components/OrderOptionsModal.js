@@ -23,7 +23,11 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          dishId: selectedDish.id,
+          id: selectedDish.id,
+          name: selectedDish.name,
+          image: selectedDish.image,
+          orderType: selectedDish.orderType,
+          price: selectedDish.price,
           quantity: quantity,
         }),
       });
@@ -34,21 +38,29 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
 
       const itemData = await itemResponse.json();
 
-      // Étape 2 : Enregistrer la commande
+      // Étape 2 : Créer l'objet de commande
+      const order = {
+        tableNumber: userInfo.tableNumber, // Assurez-vous que tableNumber est dans userInfo
+        items: [
+          {
+            id: itemData.id, // Utilisez l'ID de l'item enregistré
+            name: selectedDish.name,
+            image: selectedDish.image,
+            orderType: option, // Sur place, Emporter, etc.
+            price: selectedDish.price,
+            quantity: quantity,
+          },
+        ],
+        status: "EN_ATTENTE", // Statut par défaut
+      };
+
+      // Étape 3 : Enregistrer la commande
       const orderResponse = await fetch("http://localhost:4000/resto/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userId: userInfo.id, // Assurez-vous que userInfo a un id d'utilisateur
-          items: [
-            {
-              orderItemId: itemData.id, // L'ID de l'item enregistré
-              quantity: quantity,
-            },
-          ],
-        }),
+        body: JSON.stringify(order),
       });
 
       if (!orderResponse.ok) {
@@ -84,7 +96,6 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
         )}
         <h2 className="text-xl font-semibold mb-4">Options de consommation</h2>
 
-        {/* Input pour le choix de l'option */}
         <label className="flex items-center space-x-2">
           <input
             type="radio"
@@ -121,6 +132,7 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
               value={onSiteCount}
               onChange={(e) => setOnSiteCount(Number(e.target.value))}
               className="w-full p-2 border rounded"
+              min="0"
             />
             <input
               type="number"
@@ -128,6 +140,7 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
               value={toGoCount}
               onChange={(e) => setToGoCount(Number(e.target.value))}
               className="w-full p-2 border rounded"
+              min="0"
             />
           </div>
         )}

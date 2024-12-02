@@ -1,34 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const AdminPanel = () => {
-  const [categories, setCategories] = useState([
-    { id: 1, name: "ENTREE", color: "bg-green-600" },
-    { id: 2, name: "RESISTANCE", color: "bg-blue-600" },
-    { id: 3, name: "DESSERT", color: "bg-pink-600" },
-    { id: 4, name: "BOISSON", color: "bg-purple-600" },
-  ]);
-
-  const [dishes, setDishes] = useState([
-    {
-      id: 1,
-      name: "Salade César",
-      description: "Délicieuse salade avec sauce César...",
-      ingredients: "Laitue, Poulet, Croûtons, Parmesan",
-      price: 2500,
-      image: "/images/ENTREE1.jpeg",
-      category: "ENTREE",
-    },
-    {
-      id: 2,
-      name: "Bruschetta",
-      description: "Pain grillé avec tomates fraîches...",
-      ingredients: "Pain, Tomates, Basilic, Ail",
-      price: 1500,
-      image: "/images/ENTREE2.jpeg",
-      category: "ENTREE",
-    },
-    // Ajoutez d'autres plats ici
-  ]);
+  const [categories, setCategories] = useState([]);
+  const [dishes, setDishes] = useState([]);
 
   const [newCategory, setNewCategory] = useState("");
   const [newDish, setNewDish] = useState({
@@ -40,17 +14,45 @@ const AdminPanel = () => {
     category: "",
   });
 
-  const handleAddCategory = () => {
+  // Chargement des catégories et des plats depuis le backend
+  useEffect(() => {
+    const fetchCategoriesAndDishes = async () => {
+      try {
+        const categoriesResponse = await fetch("http://localhost:4000/resto/api/categories");
+        const categoriesData = await categoriesResponse.json();
+        setCategories(categoriesData);
+
+        const dishesResponse = await fetch("http://localhost:4000/resto/api/dishes");
+        const dishesData = await dishesResponse.json();
+        setDishes(dishesData);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données:", error);
+      }
+    };
+
+    fetchCategoriesAndDishes();
+  }, []);
+
+  const handleAddCategory = async () => {
     if (newCategory.trim() !== "") {
-      setCategories([
-        ...categories,
-        { id: categories.length + 1, name: newCategory, color: "bg-gray-600" },
-      ]);
-      setNewCategory("");
+      try {
+        const response = await fetch("http://localhost:4000/resto/api/categories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: newCategory }),
+        });
+
+        if (!response.ok) throw new Error("Erreur lors de l'ajout de la catégorie");
+        const addedCategory = await response.json();
+        setCategories([...categories, addedCategory]);
+        setNewCategory("");
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
-  const handleAddDish = () => {
+  const handleAddDish = async () => {
     if (
       newDish.name.trim() !== "" &&
       newDish.description.trim() !== "" &&
@@ -59,21 +61,27 @@ const AdminPanel = () => {
       newDish.image.trim() !== "" &&
       newDish.category.trim() !== ""
     ) {
-      setDishes([
-        ...dishes,
-        {
-          id: dishes.length + 1,
-          ...newDish,
-        },
-      ]);
-      setNewDish({
-        name: "",
-        description: "",
-        ingredients: "",
-        price: 0,
-        image: "",
-        category: "",
-      });
+      try {
+        const response = await fetch("http://localhost:4000/resto/api/dishes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newDish),
+        });
+
+        if (!response.ok) throw new Error("Erreur lors de l'ajout du plat");
+        const addedDish = await response.json();
+        setDishes([...dishes, addedDish]);
+        setNewDish({
+          name: "",
+          description: "",
+          ingredients: "",
+          price: 0,
+          image: "",
+          category: "",
+        });
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -102,7 +110,7 @@ const AdminPanel = () => {
           {categories.map((category) => (
             <div
               key={category.id}
-              className={`${category.color} text-white p-4 rounded-lg text-center`}
+              className="bg-gray-600 text-white p-4 rounded-lg text-center"
             >
               {category.name}
             </div>
@@ -118,27 +126,21 @@ const AdminPanel = () => {
               type="text"
               placeholder="Nom du plat"
               value={newDish.name}
-              onChange={(e) =>
-                setNewDish({ ...newDish, name: e.target.value })
-              }
+              onChange={(e) => setNewDish({ ...newDish, name: e.target.value })}
               className="p-2 border rounded"
             />
             <input
               type="text"
               placeholder="Description"
               value={newDish.description}
-              onChange={(e) =>
-                setNewDish({ ...newDish, description: e.target.value })
-              }
+              onChange={(e) => setNewDish({ ...newDish, description: e.target.value })}
               className="p-2 border rounded"
             />
             <input
               type="text"
               placeholder="Ingrédients"
               value={newDish.ingredients}
-              onChange={(e) =>
-                setNewDish({ ...newDish, ingredients: e.target.value })
-              }
+              onChange={(e) => setNewDish({ ...newDish, ingredients: e.target.value })}
               className="p-2 border rounded"
             />
           </div>
@@ -147,25 +149,19 @@ const AdminPanel = () => {
               type="number"
               placeholder="Prix"
               value={newDish.price}
-              onChange={(e) =>
-                setNewDish({ ...newDish, price: Number(e.target.value) })
-              }
+              onChange={(e) => setNewDish({ ...newDish, price: Number(e.target.value) })}
               className="p-2 border rounded"
             />
             <input
               type="text"
               placeholder="URL de l'image"
               value={newDish.image}
-              onChange={(e) =>
-                setNewDish({ ...newDish, image: e.target.value })
-              }
+              onChange={(e) => setNewDish({ ...newDish, image: e.target.value })}
               className="p-2 border rounded"
             />
             <select
               value={newDish.category}
-              onChange={(e) =>
-                setNewDish({ ...newDish, category: e.target.value })
-              }
+              onChange={(e) => setNewDish({ ...newDish, category: e.target.value })}
               className="p-2 border rounded"
             >
               <option value="">Sélectionnez une catégorie</option>

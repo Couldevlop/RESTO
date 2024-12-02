@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+// @ts-ignore
 const DishList = ({ categoryId, onDishSelect, onBack, commandCount }) => {
   const [dishes, setDishes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [categoryName, setCategoryName] = useState("");
 
   useEffect(() => {
     const fetchDishes = async () => {
@@ -16,7 +18,9 @@ const DishList = ({ categoryId, onDishSelect, onBack, commandCount }) => {
         }
         const data = await response.json();
         setDishes(data.dishes); // On suppose que les plats sont dans 'data.dishes'
+        setCategoryName(data.name);
       } catch (error) {
+        // @ts-ignore
         setError(error.message);
       } finally {
         setLoading(false);
@@ -53,7 +57,7 @@ const DishList = ({ categoryId, onDishSelect, onBack, commandCount }) => {
         </div>
 
         <h2 className="text-2xl font-bold mb-6 text-center">
-          Plats dans la catégorie: {categoryId}
+          Plats du ménu: {categoryName}
         </h2>
 
         {loading ? (
@@ -64,20 +68,31 @@ const DishList = ({ categoryId, onDishSelect, onBack, commandCount }) => {
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
             {dishes.map((dish) => (
               <div
+                // @ts-ignore
                 key={dish.id}
                 className="border p-4 rounded-lg shadow-md flex flex-col items-center"
               >
                 <div className="w-full h-40 aspect-video mb-4">
                   <img
+                    // @ts-ignore
                     src={dish.image}
+                    // @ts-ignore
                     alt={dish.name}
                     className="w-full h-full object-cover rounded"
                   />
                 </div>
-                <h3 className="text-xl font-semibold">{dish.name}</h3>
-                <p className="text-gray-600">{dish.description}</p>
-                <p className="text-gray-500">Ingrédients: {dish.ingredients}</p>
-                <p className="text-amber-800 font-bold">{dish.price} CFA</p>
+                <h3 className="text-xl font-semibold">{dish.
+// @ts-ignore
+                name}</h3>
+                <p className="text-gray-600">{dish.
+// @ts-ignore
+                description}</p>
+                <p className="text-gray-500">Ingrédients: {dish.
+// @ts-ignore
+                ingredients}</p>
+                <p className="text-amber-800 font-bold">{dish.
+// @ts-ignore
+                price} CFA</p>
                 <button
                   onClick={() => onDishSelect(dish)}
                   className="mt-2 p-2 bg-amber-800 text-white rounded hover:bg-amber-900 w-full"

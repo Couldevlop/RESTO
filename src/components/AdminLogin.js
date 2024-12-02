@@ -16,13 +16,9 @@ const AdminLogin = ({ onLogin }) => {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
-          Connexion Administration
-        </h2>
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">Connexion Administration</h2>
         {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-            {error}
-          </div>
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
         )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -30,9 +26,7 @@ const AdminLogin = ({ onLogin }) => {
             <input
               type="text"
               value={credentials.login}
-              onChange={(e) =>
-                setCredentials({ ...credentials, login: e.target.value })
-              }
+              onChange={(e) => setCredentials({ ...credentials, login: e.target.value })}
               className="w-full p-3 border rounded focus:ring-2 focus:ring-amber-800"
               required
             />
@@ -42,17 +36,12 @@ const AdminLogin = ({ onLogin }) => {
             <input
               type="password"
               value={credentials.password}
-              onChange={(e) =>
-                setCredentials({ ...credentials, password: e.target.value })
-              }
+              onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
               className="w-full p-3 border rounded focus:ring-2 focus:ring-amber-800"
               required
             />
           </div>
-          <button
-            type="submit"
-            className="w-full p-3 bg-amber-800 text-white rounded hover:bg-amber-900"
-          >
+          <button type="submit" className="w-full p-3 bg-amber-800 text-white rounded hover:bg-amber-900">
             Se connecter
           </button>
         </form>
@@ -60,4 +49,5 @@ const AdminLogin = ({ onLogin }) => {
     </div>
   );
 };
+
 export default AdminLogin;

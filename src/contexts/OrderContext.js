@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { createContext, useContext, useState } from "react";
 
 const OrderContext = createContext(null);
@@ -9,10 +10,10 @@ export const OrderProvider = ({ children }) => {
     setOrders((prevOrders) => [
       ...prevOrders,
       {
-        id: prevOrders.length + 1,
+        id: order.id, // On suppose que l'API renvoie l'ID de la commande
         tableNumber: order.tableNumber,
         items: order.items,
-        status: "En attente",
+        status: order.status, // Récupère le statut de la commande
         timestamp: new Date().toISOString(),
       },
     ]);
