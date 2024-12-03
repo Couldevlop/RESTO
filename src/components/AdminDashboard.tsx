@@ -16,7 +16,7 @@ interface Order {
   tableNumber: string;
   items: OrderItem[];
   status: "En attente" | "En préparation" | "Prêt" | "Servi";
-  timestamp: string;
+  orderDate: string;
 }
 
 const AdminDashboard = () => {
@@ -138,9 +138,8 @@ const AdminDashboard = () => {
 
   // Trier les commandes par timestamp (plus récent en premier)
   const sortedOrders = [...filteredOrders].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    (a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
   );
-
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-amber-800 text-white p-4">
@@ -208,26 +207,33 @@ const AdminDashboard = () => {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-lg font-bold">
-                        Table #{order.tableNumber}
+                        Table #{order?.tableNumber || "Inconnue"}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {new Date(order.timestamp).toLocaleString()}
-                      </p>
+                      {order?.orderDate
+                        ? new Date(order.orderDate).toLocaleString("fr-FR", {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                            timeZone: "Europe/Paris",
+                          })
+                        : "Date inconnue"}
+                    </p>
+
                     </div>
                     <span
                       className={`px-2 py-1 rounded text-sm ${
-                        order.status === "En attente"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : order.status === "En préparation"
-                          ? "bg-blue-100 text-blue-800"
-                          : order.status === "Prêt"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
+                        {
+                          "en attente": "bg-yellow-100 text-yellow-800",
+                          "en préparation": "bg-blue-100 text-blue-800",
+                          "prêt": "bg-green-100 text-green-800",
+                          "servi": "bg-gray-100 text-gray-800",
+                        }[order?.status?.toLowerCase()] || "bg-gray-100 text-gray-800"
                       }`}
                     >
-                      {order.status}
+                      {order?.status || "Statut inconnu"}
                     </span>
                   </div>
+
                   <div className="text-gray-600">
                     <p>{order.items.length} article(s)</p>
                     <p className="font-semibold text-amber-800">
@@ -265,7 +271,7 @@ const AdminDashboard = () => {
                 Table #{selectedOrder.tableNumber}
               </p>
               <p className="text-sm text-gray-500">
-                {new Date(selectedOrder.timestamp).toLocaleString()}
+                {new Date(selectedOrder.orderDate).toLocaleString()}
               </p>
             </div>
             <div className="space-y-4 mb-6">

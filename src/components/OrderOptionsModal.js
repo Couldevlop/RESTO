@@ -17,9 +17,9 @@ interface UserInfo {
 interface OrderOptionsModalProps {
   onClose: () => void;
   onConfirm: (orderDetails: {
-    option: string,
-    onSiteCount: number,
-    toGoCount: number,
+    option: string;
+    onSiteCount: number;
+    toGoCount: number;
   }) => void;
   selectedDish: Dish | null;
   userInfo: UserInfo | null;
@@ -39,8 +39,11 @@ const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
   const [error, setError] = useState(null);
 
   const handleConfirm = async () => {
+    // Calculer la quantité totale en fonction de l'option
     const quantity =
-      option === "Surplace/Emporter" ? onSiteCount + toGoCount : 1;
+      option === "Surplace" ? onSiteCount :
+      option === "Emporter" ? toGoCount :
+      option === "Surplace/Emporter" ? onSiteCount + toGoCount : 0;
 
     setLoading(true);
     setError(null);
@@ -60,7 +63,7 @@ const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
             image: selectedDish?.image,
             orderType: option,
             price: selectedDish?.price,
-            quantity: quantity,
+            quantity: quantity, // Utilise la quantité calculée
           }),
         }
       );
@@ -141,6 +144,19 @@ const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
           />
           <span>Emporter</span>
         </label>
+        {option === "Emporter" && (
+          <div className="mt-2">
+            <input
+              type="number"
+              placeholder="Quantité (Emporter)"
+              value={toGoCount}
+              onChange={(e) => setToGoCount(Number(e.target.value))}
+              className="w-full p-2 border rounded"
+              min="0"
+            />
+          </div>
+        )}
+
         <label className="flex items-center space-x-2">
           <input
             type="radio"
@@ -150,6 +166,19 @@ const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
           />
           <span>Sur place</span>
         </label>
+        {option === "Surplace" && (
+          <div className="mt-2">
+            <input
+              type="number"
+              placeholder="Quantité (Sur place)"
+              value={onSiteCount}
+              onChange={(e) => setOnSiteCount(Number(e.target.value))}
+              className="w-full p-2 border rounded"
+              min="0"
+            />
+          </div>
+        )}
+
         <label className="flex items-center space-x-2">
           <input
             type="radio"
