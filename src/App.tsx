@@ -20,22 +20,27 @@ type Step =
   | "dishes"
   | "orderOptions";
 
-  
-
 type RegistrationType = "client" | "personnel";
 type Category = { id: number; name: string };
-type Dish = { id: number; name: string; description: string; ingredients: string; image: string; price: number };
-type UserInfo = { name: string; email: string; tableNumber : number };
-type OrderDetails = { dishId: number; quantity: number };
-
+type Dish = {
+  id: number;
+  name: string;
+  description: string;
+  ingredients: string;
+  image: string;
+  price: number;
+};
+type UserInfo = { name: string; email: string; tableNumber: string };
+type OrderDetails = { option: string; onSiteCount: number; toGoCount: number };
 
 const App = () => {
   const [step, setStep] = useState<Step>("welcome");
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [commandCount, setCommandCount] = useState(0);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  
 
   // Handle registration type
   const handleRegistrationType = (type: RegistrationType) => {
@@ -46,6 +51,13 @@ const App = () => {
   const handleRegistration = (info: UserInfo) => {
     setUserInfo(info);
     setStep("categories");
+  };
+
+  // Handle order confirmation
+  const handleOrderConfirm = (orderDetails: OrderDetails) => {
+    setCommandCount(commandCount + 1);
+    setSelectedDish(null);
+    setStep("dishes");
   };
 
   // Render the current step
@@ -67,13 +79,13 @@ const App = () => {
             onCategorySelect={(category: Category) => {
               setSelectedCategory(category);
               setStep("dishes");
-            }} 
+            }}
           />
         );
       case "dishes":
         return (
           <DishList
-            categoryId={selectedCategory ? selectedCategory.id : null} // Adjust this part to pass the ID
+            categoryId={selectedCategory ? selectedCategory.id : null}
             onDishSelect={(dish: Dish) => {
               setSelectedDish(dish);
               setStep("orderOptions");
@@ -88,11 +100,7 @@ const App = () => {
             selectedDish={selectedDish}
             userInfo={userInfo}
             onClose={() => setStep("dishes")}
-            onConfirm={(orderDetails: OrderDetails) => {
-              setCommandCount(commandCount + 1);
-              setSelectedDish(null);
-              setStep("dishes");
-            }}
+            onConfirm={handleOrderConfirm}
           />
         );
       default:

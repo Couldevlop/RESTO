@@ -1,36 +1,69 @@
 import React, { useState } from "react";
 import { useOrders } from "../contexts/OrderContext";
 
-const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
+// Types pour les props
+interface Dish {
+  id: number;
+  name: string;
+  image: string;
+  description: string;
+  price: number;
+}
+
+interface UserInfo {
+  tableNumber: string;
+}
+
+interface OrderOptionsModalProps {
+  onClose: () => void;
+  onConfirm: (orderDetails: {
+    option: string,
+    onSiteCount: number,
+    toGoCount: number,
+  }) => void;
+  selectedDish: Dish | null;
+  userInfo: UserInfo | null;
+}
+
+const OrderOptionsModal: React.FC<OrderOptionsModalProps> = ({
+  onClose,
+  onConfirm,
+  selectedDish,
+  userInfo,
+}) => {
   const [option, setOption] = useState("");
   const [onSiteCount, setOnSiteCount] = useState(0);
   const [toGoCount, setToGoCount] = useState(0);
-  const { addOrder } = useOrders();
+  const { addOrder } = useOrders(); // Assurez-vous que `addOrder` est une fonction de votre contexte
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleConfirm = async () => {
-    const quantity = option === "Surplace/Emporter" ? onSiteCount + toGoCount : 1;
+    const quantity =
+      option === "Surplace/Emporter" ? onSiteCount + toGoCount : 1;
 
     setLoading(true);
     setError(null);
 
     try {
       // Étape 1 : Enregistrer l'item
-      const itemResponse = await fetch("http://localhost:4000/resto/api/orderitems", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: selectedDish.id,
-          name: selectedDish.name,
-          image: selectedDish.image,
-          orderType: selectedDish.orderType,
-          price: selectedDish.price,
-          quantity: quantity,
-        }),
-      });
+      const itemResponse = await fetch(
+        "http://localhost:4000/resto/api/orderitems",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: selectedDish?.id,
+            name: selectedDish?.name,
+            image: selectedDish?.image,
+            orderType: option,
+            price: selectedDish?.price,
+            quantity: quantity,
+          }),
+        }
+      );
 
       if (!itemResponse.ok) {
         throw new Error("Erreur lors de l'enregistrement de l'item.");
@@ -40,14 +73,14 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
 
       // Étape 2 : Créer l'objet de commande
       const order = {
-        tableNumber: userInfo.tableNumber, // Assurez-vous que tableNumber est dans userInfo
+        tableNumber: userInfo?.tableNumber,
         items: [
           {
             id: itemData.id, // Utilisez l'ID de l'item enregistré
-            name: selectedDish.name,
-            image: selectedDish.image,
+            name: selectedDish?.name,
+            image: selectedDish?.image,
             orderType: option, // Sur place, Emporter, etc.
-            price: selectedDish.price,
+            price: selectedDish?.price,
             quantity: quantity,
           },
         ],
@@ -55,13 +88,16 @@ const OrderOptionsModal = ({ onClose, onConfirm, selectedDish, userInfo }) => {
       };
 
       // Étape 3 : Enregistrer la commande
-      const orderResponse = await fetch("http://localhost:4000/resto/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(order),
-      });
+      const orderResponse = await fetch(
+        "http://localhost:4000/resto/api/orders",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(order),
+        }
+      );
 
       if (!orderResponse.ok) {
         throw new Error("Erreur lors de l'enregistrement de la commande.");
