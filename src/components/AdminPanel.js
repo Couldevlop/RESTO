@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 const AdminPanel = () => {
   const [categories, setCategories] = useState([]);
   const [dishes, setDishes] = useState([]);
-
   const [newCategory, setNewCategory] = useState("");
   const [newDish, setNewDish] = useState({
     name: "",
@@ -14,7 +13,6 @@ const AdminPanel = () => {
     category: "",
   });
 
-  // Chargement des catégories et des plats depuis le backend
   useEffect(() => {
     const fetchCategoriesAndDishes = async () => {
       try {
@@ -109,7 +107,7 @@ const AdminPanel = () => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
           {categories.map((category) => (
             <div
-              key={category.id}
+              key={category._id}
               className="bg-gray-600 text-white p-4 rounded-lg text-center"
             >
               {category.name}
@@ -121,59 +119,66 @@ const AdminPanel = () => {
       <div>
         <h2 className="text-xl font-semibold mb-4">Gestion des plats</h2>
         <div className="space-y-4">
-          <div className="flex items-center space-x-2">
+          <div className="grid grid-cols-1 gap-4">
             <input
               type="text"
               placeholder="Nom du plat"
               value={newDish.name}
               onChange={(e) => setNewDish({ ...newDish, name: e.target.value })}
-              className="p-2 border rounded"
+              className="p-2 border rounded w-full"
             />
-            <input
-              type="text"
+            <textarea
               placeholder="Description"
               value={newDish.description}
               onChange={(e) => setNewDish({ ...newDish, description: e.target.value })}
-              className="p-2 border rounded"
+              className="p-2 border rounded w-full h-32 resize-y"
             />
-            <input
-              type="text"
+            <textarea
               placeholder="Ingrédients"
               value={newDish.ingredients}
               onChange={(e) => setNewDish({ ...newDish, ingredients: e.target.value })}
-              className="p-2 border rounded"
+              className="p-2 border rounded w-full h-32 resize-y"
             />
-          </div>
-          <div className="flex items-center space-x-2">
-            <input
-              type="number"
-              placeholder="Prix"
-              value={newDish.price}
-              onChange={(e) => setNewDish({ ...newDish, price: Number(e.target.value) })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="URL de l'image"
-              value={newDish.image}
-              onChange={(e) => setNewDish({ ...newDish, image: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <select
-              value={newDish.category}
-              onChange={(e) => setNewDish({ ...newDish, category: e.target.value })}
-              className="p-2 border rounded"
-            >
-              <option value="">Sélectionnez une catégorie</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.name}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Montant (€)</label>
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  value={newDish.price}
+                  onChange={(e) => setNewDish({ ...newDish, price: Number(e.target.value) })}
+                  className="p-2 border rounded"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Catégorie</label>
+                <select
+                  value={newDish.category}
+                  onChange={(e) => setNewDish({ ...newDish, category: e.target.value })}
+                  className="p-2 border rounded"
+                >
+                  <option value="">Sélectionnez une catégorie</option>
+                  {categories.map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">URL de l'image</label>
+                <input
+                  type="text"
+                  placeholder="URL de l'image"
+                  value={newDish.image}
+                  onChange={(e) => setNewDish({ ...newDish, image: e.target.value })}
+                  className="p-2 border rounded"
+                />
+              </div>
+            </div>
             <button
               onClick={handleAddDish}
-              className="p-2 bg-amber-800 text-white rounded hover:bg-amber-900"
+              className="p-2 bg-amber-800 text-white rounded hover:bg-amber-900 w-full"
             >
               Ajouter
             </button>
