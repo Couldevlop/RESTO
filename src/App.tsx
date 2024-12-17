@@ -1,13 +1,7 @@
-import React, { useState } from "react";
+/*import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import { OrderProvider } from "./contexts/OrderContext";
-import WelcomeScreen from "./components/WelcomeScreen";
-import RegistrationChoice from "./components/RegistrationChoice";
-import RegistrationForm from "./components/RegistrationForm";
-import Categories from "./components/Categories";
-import DishList from "./components/DishList";
-import OrderOptionsModal from "./components/OrderOptionsModal";
-import AdminLogin from "./components/AdminLogin";
-import AdminDashboard from "./components/AdminDashboard";
+import RoutesConfig from "./routes/RoutesConfig";
 
 // Define types
 type Step =
@@ -110,9 +104,30 @@ const App = () => {
 
   return (
     <OrderProvider>
-      <div>{renderStep()}</div>
+      <Router>
+        <RoutesConfig />
+      </Router>
+    </OrderProvider>
+  );
+};
+
+export default App;*/
+
+
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import { OrderProvider } from "./contexts/OrderContext";
+import RoutesConfig from "./routes/RoutesConfig";
+
+const App = () => {
+  return (
+    <OrderProvider>
+      <Router>
+        <RoutesConfig />
+      </Router>
     </OrderProvider>
   );
 };
 
 export default App;
+

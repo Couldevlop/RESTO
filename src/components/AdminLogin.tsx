@@ -1,11 +1,18 @@
-// @ts-nocheck
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
 
-const AdminLogin = ({ onLogin }) => {
-  const [credentials, setCredentials] = useState({ login: "", password: "" });
-  const [error, setError] = useState("");
+interface AdminLoginProps {
+  onLogin: () => void;
+}
 
-  const handleSubmit = (e) => {
+const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
+  const [credentials, setCredentials] = useState<{ login: string; password: string }>({
+    login: "",
+    password: "",
+  });
+
+  const [error, setError] = useState<string>("");
+
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (credentials.login === "ADMIN" && credentials.password === "@ADMIN") {
       onLogin();
@@ -18,9 +25,7 @@ const AdminLogin = ({ onLogin }) => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">Connexion Administration</h2>
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
-        )}
+        {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-gray-700 mb-2">Login</label>
